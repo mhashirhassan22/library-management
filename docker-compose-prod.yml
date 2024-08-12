@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  web:
+    container_name: library-web
+    build:
+      context: .
+      dockerfile: packaging/docker/library/Dockerfile
+    command: >
+      bash -c "python manage.py collectstatic --no-input &&
+               gunicorn library.wsgi -t 900 -b 0.0.0.0:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./src/library:/library
+
+  nginx:
+    image: nginx:1.19.6
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    volumes:
+      - ./packaging/conf/nginx/nginx-prod.conf:/etc/nginx/nginx.conf
+      - ./packaging/conf/nginx/self-signed-prod.conf:/etc/nginx/snippets/self-signed.conf
+      - ./packaging/conf/nginx/ssl-params.conf:/etc/nginx/snippets/ssl-params.conf
+      - ./packaging/data/certbot/conf:/etc/letsencrypt
+      - ./packaging/data/certbot/www:/var/www/certbot
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - web
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./packaging/data/certbot/conf:/etc/letsencrypt
+      - ./packaging/data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
