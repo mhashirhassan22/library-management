@@ -108,5 +108,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 **Your Name**  
-[Your Email](mhashirhassan22@gmail.com)  
-[GitHub Profile](https://github.com/mhashirhassan22/)
+[My Email](mhashirhassan22@gmail.com)  
+[Portfolio](https://www.devswall.com/portfolio/hashir/)  
+[My GitHub](https://github.com/mhashirhassan22/)
