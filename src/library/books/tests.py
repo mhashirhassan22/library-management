@@ -40,6 +40,7 @@ class BookAPITests(APITestCase):
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             print("Create Book Error:", response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Book.objects.count(), 3)
 
     def test_update_book(self):
         url = reverse('book-detail', args=[self.book1.id])
@@ -79,6 +80,9 @@ class BookAPITests(APITestCase):
         url = reverse('add-favorite')
         data = {'book': str(self.book1.id)}
         response = self.client.post(url, data, format='json')
+        if response.status_code == status.HTTP_400_BAD_REQUEST:
+            print("*"*100)
+            print("Add Favorite Error:", response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Favorite.objects.count(), 1)
 
@@ -90,7 +94,6 @@ class BookAPITests(APITestCase):
         self.assertEqual(Favorite.objects.count(), 0)
 
     def test_recommend_books(self):
-        # Adding a book to favorites
         Favorite.objects.create(user=self.user, book=self.book1)
         url = reverse('recommended-books')
         response = self.client.get(url, format='json')

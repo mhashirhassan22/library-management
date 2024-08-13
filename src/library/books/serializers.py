@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from .models import Book, Favorite
+from authors.models import Author
 
 class BookSerializer(serializers.ModelSerializer):
+    author = serializers.PrimaryKeyRelatedField(queryset=Author.objects.all())
     class Meta:
         model = Book
         depth = 1
@@ -15,6 +17,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
         fields = ['id', 'book', 'added_at']
 
 class AddFavoriteSerializer(serializers.ModelSerializer):
+    book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all())
     class Meta:
         model = Favorite
         depth = 1
