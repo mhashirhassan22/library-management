@@ -39,7 +39,7 @@ make apply-migrations
 In another terminal tab, execute:
 
 ```sh
-make tests
+make test
 ```
 
 ### 6. View the Application
