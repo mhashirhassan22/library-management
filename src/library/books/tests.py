@@ -1,8 +1,8 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
-from .models import Book
-from authors.models import Author  # Import the Author model
+from .models import Book, Favorite
+from authors.models import Author
 import uuid
 from django.contrib.auth import get_user_model
 
@@ -11,14 +11,14 @@ User = get_user_model()
 class BookAPITests(APITestCase):
 
     def setUp(self):
-        # test user creation and login
+        # Test user creation and login
         self.user = User.objects.create_user(username='testuser', password='testpassword')
         response = self.client.post(reverse('users:token_obtain_pair'), {'username': 'testuser', 'password': 'testpassword'})
         self.token = response.data.get('access', None)
         self.assertIsNotNone(self.token, "Access token is missing in the response.")
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
 
-        # creating test data
+        # Creating test data
         self.author = Author.objects.create(id=uuid.uuid4(), first_name='Hashir', last_name='Hassan')
         self.book1 = Book.objects.create(id=uuid.uuid4(), title='Python 101 By Hashir', author=self.author)
         self.book2 = Book.objects.create(id=uuid.uuid4(), title='Django Development', author=self.author)
@@ -74,3 +74,25 @@ class BookAPITests(APITestCase):
         response = self.client.get(url, {'search': 'Hashir'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
+
+    def test_add_favorite(self):
+        url = reverse('add-favorite')
+        data = {'book': str(self.book1.id)}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Favorite.objects.count(), 1)
+
+    def test_remove_favorite(self):
+        favorite = Favorite.objects.create(user=self.user, book=self.book1)
+        url = reverse('remove-favorite', args=[str(favorite.id)])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Favorite.objects.count(), 0)
+
+    def test_recommend_books(self):
+        # Adding a book to favorites
+        Favorite.objects.create(user=self.user, book=self.book1)
+        url = reverse('recommended-books')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(len(response.data) <= 5)

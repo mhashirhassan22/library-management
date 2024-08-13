@@ -20,6 +20,7 @@ class Book(TimestampMixin, models.Model):
         return self.title
 
 class Favorite(TimestampMixin, models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, related_name='favorites', on_delete=models.CASCADE)
     book = models.ForeignKey(Book, related_name='favorited_by', on_delete=models.CASCADE)
 
