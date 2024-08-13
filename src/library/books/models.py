@@ -6,7 +6,7 @@ import uuid
 
 class Book(TimestampMixin, models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, db_index=True)
     description = models.TextField()
     author = models.ForeignKey(Author, related_name='books', on_delete=models.CASCADE)
     published_date = models.DateField(blank=True, null=True)
