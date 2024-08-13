@@ -18,9 +18,7 @@ class AuthorAPITests(APITestCase):
 
         # test data
         self.author = Author.objects.create(
-            id=uuid.uuid4(),
-            first_name='John',
-            last_name='Doe',
+            name='John Doe',
             biography='Some biography'
         )
 
@@ -34,13 +32,12 @@ class AuthorAPITests(APITestCase):
         url = reverse('author-detail', args=[self.author.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['first_name'], 'John')
+        self.assertEqual(response.data['name'], 'John Doe')
 
     def test_create_author(self):
         url = reverse('author-list-create')
         data = {
-            'first_name': 'Jane',
-            'last_name': 'Doe',
+            'name': 'Jane Doe',
             'biography': 'Another biography',
         }
         response = self.client.post(url, data)
@@ -50,14 +47,13 @@ class AuthorAPITests(APITestCase):
     def test_update_author(self):
         url = reverse('author-detail', args=[self.author.id])
         data = {
-            'first_name': 'John',
-            'last_name': 'Smith',
+            'name': 'John Smith',
             'biography': 'Updated biography',
         }
         response = self.client.put(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.author.refresh_from_db()
-        self.assertEqual(self.author.last_name, 'Smith')
+        self.assertEqual(self.author.name, 'John Smith')
 
     def test_delete_author(self):
         url = reverse('author-detail', args=[self.author.id])

@@ -27,8 +27,7 @@ class BookListCreateView(generics.ListCreateAPIView):
         if search_query:
             queryset = queryset.filter(
                 Q(title__icontains=search_query) |
-                Q(author__first_name__icontains=search_query) |
-                Q(author__last_name__icontains=search_query)
+                Q(author__name__icontains=search_query)
             )
         return queryset
 

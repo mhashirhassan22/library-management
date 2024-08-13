@@ -19,9 +19,9 @@ class BookAPITests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
 
         # Creating test data
-        self.author = Author.objects.create(id=uuid.uuid4(), first_name='Hashir', last_name='Hassan')
-        self.book1 = Book.objects.create(id=uuid.uuid4(), title='Python 101 By Hashir', author=self.author)
-        self.book2 = Book.objects.create(id=uuid.uuid4(), title='Django Development', author=self.author)
+        self.author = Author.objects.create(name='Hashir Hassan')
+        self.book1 = Book.objects.create(title='Python 101 By Hashir', author=self.author)
+        self.book2 = Book.objects.create(title='Django Development', author=self.author)
 
     def test_get_all_books(self):
         url = reverse('book-list-create')
