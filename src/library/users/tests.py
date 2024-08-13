@@ -9,19 +9,38 @@ User = get_user_model()
 class UserRegistrationTests(APITestCase):
     def test_user_registration(self):
         """
-        Ensure we can create a new user with an email as the main field.
+        Ensure we can create a new user with a username, email, password, and confirm password.
         """
         url = reverse('users:signup')
-        data = {'email': 'user@example.com', 'password': 'testpass123', 'username':'user123'}
+        data = {
+            'email': 'user@test.com',
+            'username': 'user123',
+            'password': 'testpass123',
+            'confirm_password': 'testpass123'
+        }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(User.objects.get().email, 'user@example.com')
+        self.assertEqual(User.objects.get().email, 'user@test.com')
+
+    def test_user_registration_password_mismatch(self):
+        """
+        Ensure registration fails if password and confirm_password do not match.
+        """
+        url = reverse('users:signup')
+        data = {
+            'email': 'user@test.com',
+            'username': 'user123',
+            'password': 'testpass123',
+            'confirm_password': 'mismatchpass'
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(User.objects.count(), 0)
 
 class UserLoginTests(APITestCase):
     def setUp(self):
-        # Create a user for testing login
-        self.user = User.objects.create_user(email='user@example.com', password='testpass123', username='user123')
+        self.user = User.objects.create_user(email='user@test.com', password='testpass123', username='user123')
 
         self.user.is_active = True
         self.user.save()
