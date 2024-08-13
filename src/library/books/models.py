@@ -2,7 +2,8 @@ from django.db import models
 from core.models import TimestampMixin
 from authors.models import Author
 import uuid
-# Create your models here.
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 class Book(TimestampMixin, models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -17,3 +18,18 @@ class Book(TimestampMixin, models.Model):
 
     def __str__(self):
         return self.title
+
+class Favorite(TimestampMixin, models.Model):
+    user = models.ForeignKey(User, related_name='favorites', on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, related_name='favorited_by', on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'book'], name='unique_favorite'),
+        ]
+        indexes = [
+            models.Index(fields=['user', 'book']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.book.title}"
